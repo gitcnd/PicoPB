@@ -20,9 +20,19 @@ WARNING: very basic early code!
 # FUNCTIONS
 
 ```C
+  // Most calls (except the ones returning numbers) will return the number of storage buffer bytes of the value
   encode_varint(buffer,value);	// Convert unsigned into varints and signed into svarints - returns #bytes taken to store it
   decode_varint(buffer);	// Gets it back
   decode_svarint(buffer);	// Gets back a signed result
+
+  encode_string(char *buffer,char *input, unsigned int length);	// Store text or data
+  encode_string(char *buffer,char *input); 			// calls encode_string with strlen(input)
+  decode_string(char *buffer,char *output, unsigned int maxlen);// Get back stored text or data - NB: function returns the buffer space it took, not the length you got back
+  encode_fixed32(char *buffer,float input);	// Store a float or something - note that on Arduino, float, double and long-double are all the same thing (4 bytes; 32bits)
+  decode_fixed32(char *buffer);			// returns the number
+
+  encode_fixed64(char *buffer,long double input);		// Coded, but don't work on arduino (which has no 64bit datatypes)
+  decode_fixed64(char *buffer);
 ```
 
 
