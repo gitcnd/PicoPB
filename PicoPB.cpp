@@ -16,6 +16,13 @@
 #include "PicoPB.h"
 #include <string.h> // memcpy
 
+#if ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
+
 
 PicoPB::PicoPB(unsigned int unused)
 {
@@ -26,6 +33,21 @@ PicoPB::PicoPB(unsigned int unused)
 // This gets used for unsigned ints
 // CAUTION - unsigned int math can trip you up - code with care.
 unsigned int PicoPB::encode_varint(char *buffer,unsigned int value) {
+  unsigned int bytes=0;
+
+  if (value <= 0x7F) {
+    buffer[0]=value;
+  } else {
+    while (value) {
+      buffer[bytes]=((value & 0x7F) | 0x80);
+      value >>= 7;
+      bytes++;
+    }
+    buffer[bytes-1] &= 0x7F; /* Unset top bit on last byte */
+  }
+  return bytes+1;
+} //encode_varint
+unsigned int PicoPB::encode_varint(char *buffer,uint32_t value) {
   unsigned int bytes=0;
 
   if (value <= 0x7F) {
@@ -127,6 +149,12 @@ long double PicoPB::decode_fixed64(char *buffer) {
  *	varint tags are PB_WT_VARINT.  2 fixed tags of 32 and 64 for floats etc (PB_WT_32BIT).  rest are PB_WT_STRING
  *
 
+typedef enum {
+  PB_WT_VARINT = 0,
+  PB_WT_64BIT  = 1,
+  PB_WT_STRING = 2,
+  PB_WT_32BIT  = 5
+} pb_wire_type_t;
 
 
 

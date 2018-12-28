@@ -6,11 +6,20 @@
 #ifndef PicoPB_h
 #define PicoPB_h
 
+
+#if ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
+
 class PicoPB
 {
   public:
     PicoPB(unsigned int);
     unsigned int encode_varint(char *buffer, unsigned int input);	// Returns the number of bytes used to store it
+    unsigned int encode_varint(char *buffer,uint32_t input);		//  "
     unsigned int encode_varint(char *buffer, int input);		//  "
     unsigned int decode_varint(char *buffer);			// Returns the unsigned int
     int decode_svarint(char *);				// Returns the signed int

@@ -53,12 +53,12 @@ WARNING: very basic early code!
 ```
 4. restart your arduino IDE
 5. Choose File => Examples => PicoPB => PicoPB_example
-6. Hit the "build" button an enjoy!
+6. Hit the "build" button and enjoy!
 
 (Method 2) - see https://www.arduino.cc/en/Guide/Libraries
 
 1. Download the ZIP of this repo: https://github.com/gitcnd/PicoPB/archive/master.zip
 2. In your IDE, select Sketch -> Include Library -> Add .ZIP Library
 3. Choose File => Examples => PicoPB => hello
-4. Hit the "build" button an enjoy!
+4. Hit the "build" button and enjoy!
 
