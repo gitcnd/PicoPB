@@ -19,10 +19,15 @@ class PicoPB
   public:
     PicoPB(unsigned int);
     unsigned int encode_varint(char *buffer, unsigned int input);	// Returns the number of bytes used to store it
-    unsigned int encode_varint(char *buffer,uint32_t input);		//  "
-    unsigned int encode_varint(char *buffer, int input);		//  "
-    unsigned int decode_varint(char *buffer);			// Returns the unsigned int
-    int decode_svarint(char *);				// Returns the signed int
+    unsigned int encode_varint(char *buffer, uint32_t input);		//  "
+    unsigned int encode_varint(char *buffer, unsigned char input);	//  "
+    unsigned int encode_varint(char *buffer, int input);		//  " (uses zigzag encoding)
+    unsigned int encode_varint(char *buffer, int32_t input);		//  " (uses zigzag encoding)
+    uint32_t decode_varint(char *buffer);				// Returns the unsigned int
+    unsigned int decode_varint(uint8_t *buffer, uint16_t *val);		// Puts answer into val, returns the number of bytes that were used to store it in the stream
+    unsigned int decode_varint(uint8_t *buffer, uint32_t *val);		// Puts answer into val, returns the number of bytes that were used to store it in the stream
+    int32_t decode_svarint(char *);					// Returns the signed int
+    //int16_t decode_svarint(char *buffer);
 
     // All return the number of buffer-bytes used:-
     unsigned int encode_string(char *buffer,char *input, unsigned int length);

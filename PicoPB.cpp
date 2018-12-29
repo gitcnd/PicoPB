@@ -32,21 +32,6 @@ PicoPB::PicoPB(unsigned int unused)
 
 // This gets used for unsigned ints
 // CAUTION - unsigned int math can trip you up - code with care.
-unsigned int PicoPB::encode_varint(char *buffer,unsigned int value) {
-  unsigned int bytes=0;
-
-  if (value <= 0x7F) {
-    buffer[0]=value;
-  } else {
-    while (value) {
-      buffer[bytes]=((value & 0x7F) | 0x80);
-      value >>= 7;
-      bytes++;
-    }
-    buffer[bytes-1] &= 0x7F; /* Unset top bit on last byte */
-  }
-  return bytes+1;
-} //encode_varint
 unsigned int PicoPB::encode_varint(char *buffer,uint32_t value) {
   unsigned int bytes=0;
 
@@ -58,45 +43,113 @@ unsigned int PicoPB::encode_varint(char *buffer,uint32_t value) {
       value >>= 7;
       bytes++;
     }
-    buffer[bytes-1] &= 0x7F; /* Unset top bit on last byte */
+    bytes--;
+    buffer[bytes] &= 0x7F; // Unset top bit on last byte
   }
   return bytes+1;
 } //encode_varint
 
+
+unsigned int PicoPB::encode_varint(char *buffer,unsigned int value) {
+  uint32_t newval=value;
+  return encode_varint(buffer,newval); // copy the 16bit data into 32bit and use the 32bit code
+}
+unsigned int PicoPB::encode_varint(char *buffer,unsigned char value) {
+  uint32_t newval=value;
+  return encode_varint(buffer,newval); // copy the 16bit data into 32bit and use the 32bit code
+}
+
+/*
+
+// CAUTION - unsigned int math can trip you up - code with care.
+unsigned int PicoPB::encode_varint(char *buffer,unsigned int value) {
+  unsigned int bytes=0;
+
+  if (value <= 0x7F) {
+    buffer[0]=value;
+  } else {
+    while (value) {
+      buffer[bytes]=((value & 0x7F) | 0x80);
+      value >>= 7;
+      bytes++;
+    }
+    bytes--;
+    buffer[bytes] &= 0x7F; // Unset top bit on last byte
+  }
+  return bytes+1;
+} //encode_varint
+
+*/
+
 // Use this to decode unsigned ints
-unsigned int PicoPB::decode_varint(char *buffer)
-{
-  unsigned int result=0;
+uint32_t PicoPB::decode_varint(char *buffer) {
+  uint32_t result=0;
+  uint32_t qtmp=0;
   unsigned char bitpos = 0;
   int i=0;
   do {
-    result |= (unsigned int)(buffer[i] & 0x7F) << bitpos;
+    qtmp=buffer[i] & 0x7F; qtmp=qtmp<<bitpos;
+    result |= qtmp;
+    //result |= (buffer[i] & 0x7F) << bitpos;
     bitpos += 7;
   } while (buffer[i++] & 0x80);
    
   return result;
 } // decode_varint
 
+unsigned int PicoPB::decode_varint(uint8_t *buffer, uint32_t *result) { // returns length in bytes
+  *result=0;
+  unsigned char bitpos = 0;
+  uint32_t qtmp=0;
+  unsigned int i=0;
+  do {
+//Serial.print(" r=0x");Serial.print(buffer[i],HEX);
+    qtmp=buffer[i] & 0x7F; qtmp=qtmp<<bitpos;
+    *result |= qtmp;
+    //*result |= (buffer[i] & 0x7F) << bitpos; // arduino cannot << properly
+//Serial.print(" a=");Serial.print(*result);
+    bitpos += 7;
+  } while (buffer[i++] & 0x80);
+//  Serial.print(" i=");Serial.println(i);  
+  return i;
+} // decode_varint
 
+unsigned int PicoPB::decode_varint(uint8_t *buffer, uint16_t *result) {	// returns length in bytes
+  uint32_t newresult=*result;
+  unsigned int ret=decode_varint(buffer,&newresult);
+  *result=newresult;
+  return ret;
+}
 
 // This will be used if your ints are signed - NOTE - do not use signed-ints if you don't need them.
 // CAUTION - unsigned int math can trip you up - code with care.
-unsigned int PicoPB::encode_varint(char *buffer,int value) {
-  unsigned int zigzagged;
+unsigned int PicoPB::encode_varint(char *buffer,int32_t value) {
+  uint32_t zigzagged;
   if (value < 0)
-     zigzagged = ~((unsigned int)value << 1);
+     zigzagged = ~((uint32_t)value << 1);
   else
-     zigzagged = (unsigned int)value << 1;
+     zigzagged = (uint32_t)value << 1;
 
   return encode_varint(buffer, zigzagged);
 } //encode_varint
 
+unsigned int PicoPB::encode_varint(char *buffer,int value) {
+  int32_t newval=value;
+  return encode_varint(buffer,newval); // copy the 16bit data into 32bit and use the 32bit code
+}
+
 // Use this to decode signed ints
-int PicoPB::decode_svarint(char *buffer) {
-  unsigned int value=decode_varint(buffer);
-  if (value & 1) return (int)(~(value >> 1));
-  else return (value >> 1);
+int32_t PicoPB::decode_svarint(char *buffer) {
+  uint32_t value=decode_varint(buffer);
+  //if (value & 1){value/=2; return -value;} else {value/=2; return value;}
+  if (value & 1) return (int32_t)(~(value >> 1)); else return (value >> 1);
 } //decode_svarint
+
+//int16_t PicoPB::decode_svarint(char *buffer) {
+//  uint32_t value=decode_varint(buffer);
+//  int16_t ret;
+//  if (value & 1){value/=2; ret=-value; return ret} else {value/=2; ret=value; return ret;}
+//}
 
 
 
@@ -110,11 +163,14 @@ unsigned int PicoPB::encode_string(char *buffer,char *input) {return encode_stri
 
 // Use this to decode strings
 unsigned int PicoPB::decode_string(char *buffer,char *output, unsigned int maxlen) {
-  unsigned int result=0;
+  uint32_t result=0;
   unsigned char bitpos = 0;
-  int lenlen=0;
+  long lenlen=0;
+  uint32_t qtmp=0;
   do {
-    result |= (unsigned int)(buffer[lenlen] & 0x7F) << bitpos;
+    qtmp=buffer[lenlen] & 0x7F; qtmp=qtmp<<bitpos;
+    result |= qtmp;
+    //result |= (unsigned int)(buffer[lenlen] & 0x7F) << bitpos;
     bitpos += 7;
   } while (buffer[lenlen++] & 0x80);
   if(result<maxlen){output[result]=0;maxlen=result;} // terminate if theres room, plus, remember the full string length for returning shortly (so we re-use maxlen as the (posisbly shorter) lengh in memcpy shortly)
