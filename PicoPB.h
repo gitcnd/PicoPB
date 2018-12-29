@@ -33,6 +33,7 @@ class PicoPB
     unsigned int encode_string(char *buffer,char *input, unsigned int length);
     unsigned int encode_string(char *buffer,char *input); // calls encode_string with strlen(input)
     unsigned int decode_string(char *buffer,char *output, unsigned int maxlen);
+    unsigned int decode_string(byte *buffer,byte *output, unsigned int maxlen);
     unsigned int encode_fixed32(char *buffer,float input);
     //unsigned int encode_fixed32(char *buffer,double input);
     float decode_fixed32(char *buffer);

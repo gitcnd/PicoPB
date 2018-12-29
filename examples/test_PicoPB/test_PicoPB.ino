@@ -10,7 +10,8 @@ SerialIDset("\n#\tv2.04 " __FILE__ "\t" __DATE__ " " __TIME__);
 PicoPB PicoPB(0); // 0 does nothing - we might need some switch in future?
 
 #define BUFFSIZE 200
-byte buf[BUFFSIZE];
+//byte buf[BUFFSIZE];
+char buf[BUFFSIZE];
 // handy: https://www.arduino.cc/reference/en/
 
 void wipe(char *buf) {for(int i=0;i<BUFFSIZE;i++)buf[i]=0;}
@@ -49,6 +50,7 @@ void setup() {
   double	vt1=0;  double		vt2=0;
 
   // 1+ bytes
+  //byte 		vu1[]="Hello";byte 	vu2[]="xxxxx";
   char 		vu1[]="Hello";char 	vu2[]="xxxxx";
 
   p("boolean	"); Serial.print(va1); l(); Serial.print(PicoPB.encode_varint(buf,va1)); va2=PicoPB.decode_varint(buf); if(va2==va2)ok(); else ng();
@@ -402,9 +404,10 @@ Serial.println(vr2);
   p(   "double		"); Serial.print(vt1); l(); Serial.print(PicoPB.encode_fixed32(buf,vt1)); vt2=PicoPB.decode_fixed32(buf); if(vt1==vt2)ok(); else ng();
   vt1=3.14159265359; p(   "double		"); Serial.print(vt1); l(); Serial.print(PicoPB.encode_fixed32(buf,vt1)); vt2=PicoPB.decode_fixed32(buf); if(vt1==vt2)ok(); else ng();
   vt1=-3.14159265359; p(   "double		"); Serial.print(vt1); l(); Serial.print(PicoPB.encode_fixed32(buf,vt1)); vt2=PicoPB.decode_fixed32(buf); if(vt1==vt2)ok(); else ng();
-  vt1=-314159265359.123; p(   "double		"); Serial.print(vt1); l(); Serial.print(PicoPB.encode_fixed32(buf,vt1)); vt2=PicoPB.decode_fixed32(buf); if(vt1==vt2)ok(); else ng();
+  vt1=-31465359.123; p(   "double		"); Serial.print(vt1); l(); Serial.print(PicoPB.encode_fixed32(buf,vt1)); vt2=PicoPB.decode_fixed32(buf); if(vt1==vt2)ok(); else ng();
   vt1=0.000000314159; p(   "double		"); Serial.print(vt1); l(); Serial.print(PicoPB.encode_fixed32(buf,vt1)); vt2=PicoPB.decode_fixed32(buf); if(vt1==vt2)ok(); else ng();
-  // p(   "char 		"); Serial.print(vu1); l(); Serial.print(PicoPB.encode_varint(buf,1[])); 1[2=PicoPB.decode_varint(buf); if(1[]==1[2)ok(); else ng();
+
+  p(   "char 		"); Serial.print(vu1); l(); Serial.print(PicoPB.encode_string(buf,vu1)); PicoPB.decode_string(buf,vu2,sizeof(vu2)); if(strcmp(vu1,vu2)==0)ok(); else ng();
 
 
 

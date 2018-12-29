@@ -177,6 +177,7 @@ unsigned int PicoPB::decode_string(char *buffer,char *output, unsigned int maxle
   memcpy(output,&buffer[lenlen],maxlen);
   return result+lenlen; // returns the number of bytes that this string used in the buffer - even if the output was too small to recieve it all
 } // decode_string
+unsigned int PicoPB::decode_string(byte *buffer,byte *output, unsigned int maxlen) { return decode_string(buffer,output,maxlen); }
 
 // Caution: these require the "endianness" of your IoT platform to match the PB specs
 unsigned int PicoPB::encode_fixed32(char *buffer,float input) {

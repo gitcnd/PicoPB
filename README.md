@@ -22,7 +22,7 @@ An exceptionally lightweight Protocol-Buffers support lib which consumes no RAM 
   encode_varint(buffer,value);	// Convert unsigned into varints and signed into svarints - returns #bytes taken to store it
   decode_varint(buffer);	// Gets it back
   decode_svarint(buffer);	// Gets back a signed result ** Important - use when required, and don't mix signed and unsigned **
-  decode_varint(buffer,&value);	// Puts the decoded varinto into value, and returns the #bytes that were taken to store it
+  decode_varint(buffer,&value);	// Puts the decoded varint into value, and returns the #bytes that were taken to store it
 
   encode_string(char *buffer,char *input, unsigned int length);	// Store text or data
   encode_string(char *buffer,char *input); 			// calls encode_string with strlen(input)
