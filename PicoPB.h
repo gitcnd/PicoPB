@@ -27,6 +27,7 @@ class PicoPB
     unsigned int decode_varint(uint8_t *buffer, uint16_t *val);		// Puts answer into val, returns the number of bytes that were used to store it in the stream
     unsigned int decode_varint(uint8_t *buffer, uint32_t *val);		// Puts answer into val, returns the number of bytes that were used to store it in the stream
     int32_t decode_svarint(char *);					// Returns the signed int
+    unsigned int decode_svarint(char *buffer,uint32_t *va);
     //int16_t decode_svarint(char *buffer);
 
     // All return the number of buffer-bytes used:-
@@ -37,6 +38,7 @@ class PicoPB
     unsigned int encode_fixed32(char *buffer,float input);
     //unsigned int encode_fixed32(char *buffer,double input);
     float decode_fixed32(char *buffer);
+    unsigned int decode_fixed32(char *buffer, float *value);
     //double decode_fixed32(char *buffer);
 
     unsigned int encode_fixed64(char *buffer,long double input);

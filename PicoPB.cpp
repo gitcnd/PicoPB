@@ -141,15 +141,13 @@ unsigned int PicoPB::encode_varint(char *buffer,int value) {
 // Use this to decode signed ints
 int32_t PicoPB::decode_svarint(char *buffer) {
   uint32_t value=decode_varint(buffer);
-  //if (value & 1){value/=2; return -value;} else {value/=2; return value;}
   if (value & 1) return (int32_t)(~(value >> 1)); else return (value >> 1);
 } //decode_svarint
-
-//int16_t PicoPB::decode_svarint(char *buffer) {
-//  uint32_t value=decode_varint(buffer);
-//  int16_t ret;
-//  if (value & 1){value/=2; ret=-value; return ret} else {value/=2; ret=value; return ret;}
-//}
+unsigned int PicoPB::decode_svarint(char *buffer,uint32_t *value) {
+  unsigned int ret=decode_varint((uint8_t *)buffer,value);
+  if (*value & 1) *value=(int32_t)(~(*value >> 1)); else *value=(*value >> 1);
+  return ret;
+}
 
 
 
@@ -187,6 +185,10 @@ unsigned int PicoPB::encode_fixed32(char *buffer,float input) {
 } //encode_fixed32
 float PicoPB::decode_fixed32(char *buffer) {
   return ((float *)buffer)[0];
+} //decode_fixed32
+unsigned int PicoPB::decode_fixed32(char *buffer, float *value) {
+  *value=((float *)buffer)[0];
+  return 4;
 } //decode_fixed32
 //unsigned int PicoPB::encode_fixed32(char *buffer,double input) { ((double *)buffer)[0]=input; return sizeof(double); } // double is also 4 bytes on Arduino!
 //double PicoPB::decode_fixed32(char *buffer) { return ((double *)buffer)[0]; }
